@@ -94,12 +94,6 @@ print('The integrated spectral intensity based on photon flux vs wavelength for 
 print('The integrated spectral intensity based on photon flux vs energy for T={:d} is\n {:.2f} W/m²' 
       .format(sun_temp, np.trapz(AM0_e_nph * Ens, x=Ens)))
 
-#
-# Determine power harvested by a Silicon solar cell
-#
-
-# find the closest eV value in the array
-# https://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
 def find_nearest_indices(array, values):
     array = np.asarray(array)
     indices = []
@@ -107,20 +101,6 @@ def find_nearest_indices(array, values):
         idx = (np.abs(array - value)).argmin()
         indices.append(idx)
     return indices
-#
-#  Find array index for which E = 1100 meV
-#
-array_index_Si = find_nearest_indices(Ens, values=[1.1])[0]
-
-#
-# Integrate over energy array, starting at Egap(Si), multiplying with Egap instead of photon energy
-#
-received_power_density = np.trapz(AM0_e_nph * Ens, x=Ens)
-harvested_power_density_Si = np.trapz(AM0_e_nph[array_index_Si:]*(1.1), x=Ens[array_index_Si:])
-
-
-print('The power harvested from a Si solar cell is {:.2f} W/m², corresponding to an efficiency of {:.2%} '
-      .format(harvested_power_density_Si,harvested_power_density_Si/received_power_density))
 
 
 Vg = np.linspace(0.5, 2.5, 100)
@@ -140,6 +120,23 @@ plt.ylabel('Efficiency')
 #plt.xscale("log")
 #plt.yscale("log")
 plt.show()
+
+
+array_index_crySi = find_nearest_indices(Ens, values=[1.1])[0]
+array_index_hitSi = find_nearest_indices(Ens, values=[1.7])[0]
+received_power_density = np.trapz(AM0_e_nph * Ens, x=Ens)
+harvested_power_density_crySi = np.trapz(AM0_e_nph[array_index_crySi:]*(1.1), x=Ens[array_index_crySi:])
+harvested_power_density_hitSi = np.trapz(AM0_e_nph[array_index_hitSi:]*(1.7), x=Ens[array_index_hitSi:])
+
+
+print()
+print("Power efficiency")
+print('The power harvested from a crystaline silicon cell is {:.2f} W/m², corresponding to an efficiency of {:.2%} '
+      .format(harvested_power_density_crySi,harvested_power_density_crySi/received_power_density))
+
+print('The power harvested from a amorphous silicon heterojunction cell is {:.2f} W/m², corresponding to an efficiency of {:.2%} '
+      .format(harvested_power_density_hitSi,harvested_power_density_hitSi/received_power_density))
+
 
 
 
